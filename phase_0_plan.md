@@ -5,7 +5,7 @@
 
 ---
 
-## Tuần 1–2: Thành Lập Ban Biên Tập & Xác Định Giọng Văn Mục Tiêu
+## Tuần 1–2: Thành Lập Ban Biên Tập & Xác Định Giọng Văn Để Huấn Luyện AI
 
 ### Công việc
 
@@ -50,14 +50,14 @@ Thay vì để một nghiên cứu viên đọc thủ công, dùng AI để qué
 
 Prompt mẫu gửi AI cho mỗi nguồn:
 ```
-Từ đoạn văn bản sau, hãy liệt kê tất cả thuật ngữ triết học kỹ thuật.
+Từ đoạn văn bản sau, hãy liệt kê tất cả thuật ngữ triết học, những từ chưa phổ biến, hoặc những từ chưa có trong tiếng Việt.
 Với mỗi thuật ngữ, cho biết: (1) từ tiếng Anh gốc, (2) các phiên bản
 tiếng Việt hiện đang dùng, (3) ngữ cảnh xuất hiện.
 Kết quả trả về dạng bảng.
 [Dán văn bản nguồn vào đây]
 ```
 
-Kết quả: Một spreadsheet thô với cột: `Từ tiếng Anh | Các lựa chọn tiếng Việt hiện tại | Nguồn | Ghi chú AI`
+Kết quả: Một file Excel thô với cột: `Từ tiếng Anh | Các lựa chọn tiếng Việt hiện tại | Nguồn | Ghi chú AI`
 
 **Bước 2 — Ban Biên Tập thẩm định và bỏ phiếu (~1–2 tuần)**
 
@@ -113,9 +113,15 @@ Thay vì dịch toàn bộ thủ công, nhóm áp dụng vòng lặp sau:
   Bản phê duyệt mới được thêm vào mẫu cho lần dịch tiếp theo
 ```
 
-### Thiết kế Prompt Chuẩn (cho AI)
+### Thiết kế Prompt — Hai Lớp (Google Gemini Gems / Claude Projects)
 
-Mỗi lần gửi đoạn cần dịch, AI nhận được prompt theo cấu trúc sau:
+Thay vì dịch giả phải dán lại toàn bộ prompt mỗi lần, prompt được tách thành **hai lớp**:
+
+---
+
+**Lớp 1 — System Prompt (cài đặt một lần bởi Kỹ thuật viên AI)**
+
+Phần này được lưu cố định trong Gemini Gem hoặc Claude Project. Dịch giả không bao giờ phải chạm vào nó.
 
 ```
 BẠN LÀ DỊCH GIẢ TRIẾT HỌC TIẾNG VIỆT.
@@ -123,26 +129,51 @@ BẠN LÀ DỊCH GIẢ TRIẾT HỌC TIẾNG VIỆT.
 QUY TẮC GIỌNG VĂN (bắt buộc tuân theo):
 - Tiếng Việt hiện đại, rõ ràng, câu ngắn đến trung bình
 - Không dịch sát cú pháp tiếng Anh — ưu tiên ý nghĩa tự nhiên
-- Thuật ngữ kỹ thuật: dùng đúng từ trong Bảng Thuật Ngữ bên dưới
+- Thuật ngữ kỹ thuật: dùng đúng từ trong Bảng Thuật Ngữ đã được đính kèm
 - Lần xuất hiện đầu tiên của thuật ngữ mới: thêm nguyên bản tiếng Anh trong ngoặc đơn
 
-VĂN BẢN MẪU (đây là giọng văn bạn cần đạt được):
-[Dán đoạn Touchstone Text vào đây]
-
-BẢNG THUẬT NGỮ BẮT BUỘC:
-[Dán 50–100 thuật ngữ liên quan vào đây]
-
-MẪU DỊCH ĐÃ DUYỆT TRƯỚC ĐÓ (học giọng văn từ đây):
-[Dán 2–5 đoạn đã được phê duyệt gần nhất]
-
-ĐOẠN CẦN DỊCH:
-[Đoạn tiếng Anh cần dịch]
+VĂN BẢN CHUẨN (Touchstone Text — đây là giọng văn bạn cần đạt được):
+[Kỹ thuật viên AI dán Touchstone Text đã được phê duyệt vào đây]
 ```
 
+---
+
+**Lớp 2 — Input của Dịch Giả (mỗi lần dịch)**
+
+Dịch giả chỉ cần gửi đúng hai thứ sau, không cần thêm gì:
+
+```
+MẪU DỊCH ĐÃ DUYỆT GẦN NHẤT (2–3 đoạn):
+[Dán 2–3 đoạn đã được phê duyệt gần nhất từ kho ngữ liệu]
+
+ĐOẠN CẦN DỊCH:
+[Dán đoạn tiếng Anh cần dịch vào đây]
+```
+
+---
+
+**Xử lý Bảng Thuật Ngữ (Glossary):**
+
+Đầu mỗi phiên làm việc, dịch giả đính kèm file Excel/PDF của Bảng Thuật Ngữ mới nhất vào cuộc trò chuyện (Gemini và Claude đều hỗ trợ đính kèm file). Kỹ thuật viên AI export file này định kỳ (hàng tuần hoặc mỗi khi có cập nhật lớn).
+
+> **Lợi ích:** Dịch giả không cần biết prompt hoạt động như thế nào. Họ chỉ cần: (1) mở Gem/Project, (2) đính kèm file glossary mới nhất, (3) dán đoạn cần dịch và gửi.
+
 ### Quy mô đoạn dịch khuyến nghị
-- **200–400 từ tiếng Anh mỗi đoạn** — đủ ngắn để dịch giả tập trung, đủ dài để AI hiểu ngữ cảnh
+
+Kích thước đoạn dịch nên tăng dần theo quy mô kho ngữ liệu đã được phê duyệt — không cố định:
+
+| Kho ngữ liệu đã duyệt | Kích thước đoạn khuyến nghị | Lý do |
+|---|---|---|
+| **0–20.000 từ** (Phase 0 ban đầu) | 200–400 từ | AI có ít mẫu; đoạn ngắn hạn chế phạm vi lỗi giọng văn |
+| **20.000–100.000 từ** | 400–800 từ | AI đủ mẫu để giữ giọng văn ổn định hơn; dịch giả hiệu đính ít hơn |
+| **Trên 100.000 từ** | 800–1.500 từ | Có thể dịch trọn một đoạn lập luận trong một lần |
+| **Mô hình fine-tuned** (tương lai) | Cả chương | Lỗi giọng văn hiếm; kiểm soát chất lượng ở cấp độ chương |
+
+> **Tín hiệu để tăng kích thước:** Không tăng theo lịch — tăng khi dịch giả xác nhận AI liên tục đạt giọng văn đúng trong 10–15 đoạn liên tiếp gần nhất mà không cần sửa lớn.
+
+**Ngoại lệ — Văn bản đối thoại (như *Cộng Hòa* của Plato):** Chia đoạn theo **lượt thoại của nhân vật**, không theo số từ — dù kho ngữ liệu đã lớn đến đâu. Cắt giữa lượt thoại khiến AI mất mạch lập luận triết học.
+
 - Không dịch theo câu đơn lẻ — dễ mất mạch lập luận triết học
-- Không dịch cả chương một lần — quá khó kiểm soát chất lượng
 
 ---
 
@@ -150,14 +181,14 @@ MẪU DỊCH ĐÃ DUYỆT TRƯỚC ĐÓ (học giọng văn từ đây):
 
 ### Mục tiêu: 3 tác phẩm ngắn hoặc đoạn trích dài, hoàn toàn được phê duyệt
 
-### Danh sách đề xuất cho Phase 0 (chọn 2–3)
+### Danh sách đề xuất cho Phase 0
 
 | Tác phẩm | Lý do ưu tiên |
 |---|---|
-| Plato — *Apology* (Lời Bào Chữa của Socrates) | Ngắn (~10.000 từ), văn xuôi đối thoại, dễ đọc, quen thuộc |
+| Plato — The Republic (Cộng Hoà) | Ngắn (~10.000 từ), văn xuôi đối thoại, dễ đọc, quen thuộc |
 | Descartes — *Meditations I & II* | Ngắn, câu văn rõ ràng, kinh điển nhập môn |
 | Aristotle — trích đoạn *Nicomachean Ethics* (quyển I) | Đạo đức học — thuật ngữ thực tế, liên quan đời sống |
-| Buddhist — *Tâm Kinh* (Heart Sutra) với chú giải | Đã có nhiều bản, dễ đánh giá chất lượng so sánh |
+| Wittgenstein — *Tractatus Logico-Philosophicus* hoặc *Philosophical Investigations* | Có chuyên gia dịch thuật |
 
 ### Vai trò của dịch giả trong giai đoạn này
 
